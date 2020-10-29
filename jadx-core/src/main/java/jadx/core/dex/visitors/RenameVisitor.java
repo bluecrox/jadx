@@ -1,13 +1,13 @@
 package jadx.core.dex.visitors;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.jetbrains.annotations.Nullable;
 
 import jadx.api.JadxArgs;
 import jadx.core.Consts;
@@ -37,8 +37,11 @@ public class RenameVisitor extends AbstractVisitor {
 		String baseName = FileUtils.getPathBaseName(inputFilePath);
 		Path deobfMapPath = inputFilePath.getParent().resolve(baseName + ".jobf");
 
+		// TODO ProGuard 映射文件暂时写死
+		Path proGuardPath = inputFilePath.getParent().resolve("mapping.txt");
+
 		JadxArgs args = root.getArgs();
-		Deobfuscator deobfuscator = new Deobfuscator(args, root, deobfMapPath);
+		Deobfuscator deobfuscator = new Deobfuscator(args, root, deobfMapPath, proGuardPath);
 		if (args.isDeobfuscationOn()) {
 			deobfuscator.execute();
 		}

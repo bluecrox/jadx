@@ -1,21 +1,24 @@
 package jadx.core.deobf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jadx.api.JadxArgs;
 import jadx.core.dex.info.ClassInfo;
 import jadx.core.dex.info.FieldInfo;
 import jadx.core.dex.info.MethodInfo;
+import jadx.core.dex.nodes.RootNode;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -26,14 +29,16 @@ class DeobfPresets {
 
 	private final Deobfuscator deobfuscator;
 	private final Path deobfMapFile;
+	private final Path proGuardMapFile;
 
 	private final Map<String, String> clsPresetMap = new HashMap<>();
 	private final Map<String, String> fldPresetMap = new HashMap<>();
 	private final Map<String, String> mthPresetMap = new HashMap<>();
 
-	public DeobfPresets(Deobfuscator deobfuscator, Path deobfMapFile) {
+	public DeobfPresets(Deobfuscator deobfuscator, Path deobfMapFile, Path proGuardMapFile) {
 		this.deobfuscator = deobfuscator;
 		this.deobfMapFile = deobfMapFile;
+		this.proGuardMapFile = proGuardMapFile;
 	}
 
 	/**
@@ -70,6 +75,12 @@ class DeobfPresets {
 		} catch (IOException e) {
 			LOG.error("Failed to load deobfuscation map file '{}'", deobfMapFile.toAbsolutePath(), e);
 		}
+
+		JadxArgs jadxArgs = new JadxArgs();
+		jadxArgs.setRenameFlags(EnumSet.noneOf(JadxArgs.RenameEnum.class));
+		RootNode root = new RootNode(jadxArgs);
+		ProGuardMappingParser parser = new ProGuardMappingParser(proGuardMapFile);
+		parser.load(root, fldPresetMap);
 	}
 
 	private static String[] splitAndTrim(String str) {

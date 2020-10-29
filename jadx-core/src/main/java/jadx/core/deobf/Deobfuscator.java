@@ -1,5 +1,9 @@
 package jadx.core.deobf;
 
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jadx.api.JadxArgs;
 import jadx.core.dex.attributes.AFlag;
@@ -63,7 +63,7 @@ public class Deobfuscator {
 	private int fldIndex = 0;
 	private int mthIndex = 0;
 
-	public Deobfuscator(JadxArgs args, RootNode root, Path deobfMapFile) {
+	public Deobfuscator(JadxArgs args, RootNode root, Path deobfMapFile, Path proGuardMapFile) {
 		this.args = args;
 		this.root = root;
 
@@ -72,7 +72,8 @@ public class Deobfuscator {
 		this.useSourceNameAsAlias = args.isUseSourceNameAsClassAlias();
 		this.parseKotlinMetadata = args.isParseKotlinMetadata();
 
-		this.deobfPresets = new DeobfPresets(this, deobfMapFile);
+
+		this.deobfPresets = new DeobfPresets(this, deobfMapFile, proGuardMapFile);
 	}
 
 	public void execute() {
